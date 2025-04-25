@@ -3,6 +3,106 @@ A simple library of utilities for building applications using WPF and .NET 9.
 
 This does not aim to change any behaviours of the Wpf workflow, instead wrapping a bunch of multi-parameter calls behind convenience types and interfaces that deals with it for you.
 
+__Without WpfUtils__
+```csharp
+public class Example : UserControl, INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public static readonly DependencyProperty FooProperty;
+    public string Foo
+    {
+        get => (string)GetValue(FooProperty);
+        set => SetValue(FooProperty, value);
+    }
+
+    public static readonly DependencyProperty BarProperty;
+    public int Bar
+    {
+        get => (int)GetValue(BarProperty);
+        set => SetValue(BarProperty, value);
+    }
+
+    public float NormalProperty
+    {
+        get => _normalProperty;
+        set
+        {
+            _normalProperty = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NormalProperty)));
+        }
+    }
+    private float _normalProperty = 42.0f;
+
+    static Example()
+    {
+        // Property with no change callback
+        FooProperty = DependencyProperty.Register(
+            nameof(Foo), 
+            typeof(string), 
+            typeof(Example), 
+            new PropertyMetadata(""));
+
+        // Property with change callback
+        BarProperty = DependencyProperty.Register(
+            nameof(Bar),
+            typeof(int),
+            typeof(Example),
+            new PropertyMetadata(0, OnBarChanged));
+
+        
+    }
+    static void OnBarChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+    {
+        ((Example)obj).Bar_Changed((int)args.NewValue);
+    }
+
+    void Bar_Changed(int newValue) { /*Handle change*/ }
+}
+```
+__With WpfUtils__
+```csharp
+public class Example : View // Or ViewModel
+{
+    public static readonly DependencyProperty FooProperty;
+    public string Foo
+    {
+        get => (string)GetValue(FooProperty);
+        set => SetValue(FooProperty, value);
+    }
+
+    public static readonly DependencyProperty BarProperty;
+    public int Bar
+    {
+        get => (int)GetValue(BarProperty);
+        set => SetValue(BarProperty, value);
+    }
+
+    public float NormalProperty
+    {
+        get => _normalProperty;
+        set => PropertySet(ref _normalProperty, value, nameof(NormalProperty));
+    }
+    private float _normalProperty = 42.0f;
+
+    static Example()
+    {
+        var registrator = new DependencyPropertyRegistrator<Example>();
+
+        // Property with no change callback
+        FooProperty = registrator.Register(nameof(Foo), "");
+
+        // Property with change callback
+        BarProperty = registrator.RegisterWithChangeCallback(nameof(Bar), 0);
+
+    }
+
+    // No need for the static invoke with casts, this method is automatically found and invoked
+    void Bar_Changed(int newValue) { /*Handle change*/ }
+}
+```
+
+
 ## Included Utilities
 ### RelayCommand
 Utility command type that allows you to specify in code on construction the behaviour of both Execute and CanExecute.
