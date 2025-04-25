@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Ost.WPFUtil.MVVM
+namespace Ost.WpfUtils.MVVM
 {
     public class ViewModel : IPropertyOwner, INotifyPropertyChanged
     {

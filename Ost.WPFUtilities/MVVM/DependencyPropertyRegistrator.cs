@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Windows;
 
-namespace Ost.WPFUtil.MVVM
+namespace Ost.WpfUtils.MVVM
 {
     public class DependencyPropertyRegistrator<T> where T: DependencyObject
     {

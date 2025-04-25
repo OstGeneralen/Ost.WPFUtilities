@@ -1,4 +1,4 @@
-﻿namespace Ost.WPFUtil.MVVM
+﻿namespace Ost.WpfUtils.MVVM
 {
     /// <summary>
     /// Interface for a type that owns properties that should be part of the WPF MVVM data model

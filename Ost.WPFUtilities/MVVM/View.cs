@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
 
-namespace Ost.WPFUtil.MVVM
+namespace Ost.WpfUtils.MVVM
 {
     public class View : UserControl, IPropertyOwner, INotifyPropertyChanged
     {
