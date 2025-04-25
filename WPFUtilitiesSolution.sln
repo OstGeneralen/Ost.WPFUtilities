@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35913.81 d17.13
+VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ost.WPFUtilities", "Ost.WPFUtilities\Ost.WPFUtilities.csproj", "{32FAB2CA-F040-461D-9122-20E516B94331}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ost.WpfUtils.ExampleApp", "Ost.WpfUtils.ExampleApp\Ost.WpfUtils.ExampleApp.csproj", "{34CDDE9B-AF86-40E3-A0E7-43DC0D18EC0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{32FAB2CA-F040-461D-9122-20E516B94331}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32FAB2CA-F040-461D-9122-20E516B94331}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32FAB2CA-F040-461D-9122-20E516B94331}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34CDDE9B-AF86-40E3-A0E7-43DC0D18EC0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34CDDE9B-AF86-40E3-A0E7-43DC0D18EC0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34CDDE9B-AF86-40E3-A0E7-43DC0D18EC0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34CDDE9B-AF86-40E3-A0E7-43DC0D18EC0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
