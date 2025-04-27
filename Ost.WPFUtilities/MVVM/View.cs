@@ -6,6 +6,12 @@ namespace Ost.WpfUtils.MVVM
     public class View : UserControl, IPropertyOwner, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected static void StaticInitializeView<T>() where T: View
+        {
+            DepProps.RegisterDependencyProperties(typeof(T));
+        }
+
         protected void NotifyPropChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -16,4 +22,5 @@ namespace Ost.WpfUtils.MVVM
             NotifyPropChanged(propertyName);
         }
     }
+
 }
