@@ -46,7 +46,17 @@ namespace Ost.WpfUtils.MVVM
 
                 if (dependencyProperty == null && dependencyPropertyMember == null) throw new Exception($"No matching static DependencyProperty instance for property {property.Name} in type {forType.Name}");
 
-                var propertyMetadata = new PropertyMetadata(attribute.DefaultValue);
+
+                PropertyMetadata propertyMetadata = new PropertyMetadata(attribute.DefaultValue);
+
+                bool isDefaultValueNull = attribute.DefaultValue == null;
+                bool isNullable = attribute.Nullable;
+                if(!isNullable && isDefaultValueNull)
+                {
+                    // If the value isn't nullable we're not setting the default value since this will cause type errors
+                    propertyMetadata = new PropertyMetadata();
+                }
+
                 if (attribute.DepPropType.HasFlag(EDepPropType.OnChangeCallback))
                 {
                     var callbackMethodName = $"{property.Name}_Changed";
@@ -80,10 +90,25 @@ namespace Ost.WpfUtils.MVVM
     {
         public EDepPropType DepPropType { get; private set; }
         public object? DefaultValue { get; private set; }
+        public bool Nullable { get; protected set; }
         public DepProp(EDepPropType t = EDepPropType.Default, object? defaultValue = null)
+            : this(t, defaultValue, false)
+        {
+        }
+
+        protected DepProp(EDepPropType t, object? defVal, bool nullable)
         {
             DepPropType = t;
-            DefaultValue = defaultValue;
+            DefaultValue = defVal;
+            Nullable = nullable;
+        }
+    }
+
+    public class NullableDepProp : DepProp
+    {
+        public NullableDepProp(EDepPropType t = EDepPropType.Default, object? defaultValue = null)
+            : base(t, defaultValue, true)
+        {
         }
     }
 }
