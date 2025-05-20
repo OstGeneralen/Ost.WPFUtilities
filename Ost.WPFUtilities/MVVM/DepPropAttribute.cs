@@ -25,6 +25,7 @@ namespace Ost.WpfUtils.MVVM
         {
             var depProps_Property = forType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(m => m.GetCustomAttribute<DepProp>() != null);
 
+
             foreach (var property in depProps_Property)
             {
                 var attribute = property.GetCustomAttribute<DepProp>();
@@ -34,8 +35,16 @@ namespace Ost.WpfUtils.MVVM
 
                 var dependencyPropertyInstanceName = $"{property.Name}Property";
                 var dependencyProperty = forType.GetProperty(dependencyPropertyInstanceName, BindingFlags.Static | BindingFlags.Public);
+                var dependencyPropertyMember = forType.GetField(dependencyPropertyInstanceName, BindingFlags.Static | BindingFlags.Public);
 
-                if (dependencyProperty == null) throw new Exception($"No matching static DependencyProperty instance for property {property.Name} in type {forType.Name}");
+                var setPropertyCall = (DependencyProperty value) =>
+                    {
+                        if (dependencyProperty != null) dependencyProperty.SetValue(null, value);
+                        else if (dependencyPropertyMember != null) dependencyPropertyMember.SetValue(null, value);
+                        else throw new Exception();
+                    };
+
+                if (dependencyProperty == null && dependencyPropertyMember == null) throw new Exception($"No matching static DependencyProperty instance for property {property.Name} in type {forType.Name}");
 
                 var propertyMetadata = new PropertyMetadata(attribute.DefaultValue);
                 if (attribute.DepPropType.HasFlag(EDepPropType.OnChangeCallback))
@@ -49,9 +58,11 @@ namespace Ost.WpfUtils.MVVM
                 }
 
                 var registered = DependencyProperty.Register(property.Name, property.PropertyType, forType, propertyMetadata);
-                dependencyProperty.SetValue(null, registered);
+                setPropertyCall(registered);
 
-                Debug.WriteLine($"Registered dependency property T: {forType.Name} | P: {property.PropertyType.Name} {property.Name} | DP: {dependencyProperty.Name}");
+                string dpName = dependencyProperty != null ? dependencyProperty.Name : dependencyPropertyMember != null ? dependencyPropertyMember.Name : "";
+
+                Debug.WriteLine($"Registered dependency property T: {forType.Name} | P: {property.PropertyType.Name} {property.Name} | DP: {dpName}");
             }
         }
     }
