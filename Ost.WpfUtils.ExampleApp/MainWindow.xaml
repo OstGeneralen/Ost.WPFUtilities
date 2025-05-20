@@ -4,10 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Ost.WpfUtils.ExampleApp"
+        xmlns:ctrl="clr-namespace:Ost.WpfUtils.Controls;assembly=Ost.WPFUtilities"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
         <local:SampleViewModel x:Key="ViewModel"/>
+
+        <SolidColorBrush x:Key="COL_DARKEN" Color="Black" Opacity="0.09"/>
+        <SolidColorBrush x:Key="COL_LIGHTEN" Color="White" Opacity="0.09"/>
     </Window.Resources>
     <Grid>
         <StackPanel VerticalAlignment="Center" Margin="15">
@@ -17,10 +21,14 @@
                 <LineBreak/>
                 Showcases basic use of RelayCommand, View and ViewModel base types as well as the DependencyPropertyRegistrator type.
             </TextBlock>
-            <DockPanel Margin="5">
-                <Button Content="Assign" Command="{Binding AssignTextValueCommand, Source={StaticResource ViewModel}}" Margin="3" Width="100" DockPanel.Dock="Right"/>
-                <local:SampleBaseView x:Name="InputField" TargetViewModel="{StaticResource ViewModel}" Margin="3"/>
-            </DockPanel>
+            <ctrl:LabeledPanel PanelBackground="{StaticResource COL_DARKEN}" BorderBrush="{StaticResource COL_LIGHTEN}" PanelLabel="Input Area" CornerRadius="5" x:Name="PART_Panel">
+                <ctrl:LabeledPanel.PanelContent>
+                    <DockPanel Margin="5">
+                        <Button Content="Assign" Command="{Binding AssignTextValueCommand, Source={StaticResource ViewModel}}" Margin="3" Width="100" DockPanel.Dock="Right" Click="Button_Click"/>
+                        <local:SampleBaseView TargetViewModel="{StaticResource ViewModel}" Margin="3"/>
+                    </DockPanel>
+                </ctrl:LabeledPanel.PanelContent>
+            </ctrl:LabeledPanel> 
             <local:SampleDependencyPropertyView TextContent="{Binding AssignedTextValue, Source={StaticResource ViewModel}}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5"/>
         </StackPanel>
     </Grid>

@@ -9,7 +9,7 @@ namespace Ost.WpfUtils.ExampleApp
     /// </summary>
     public partial class SampleDependencyPropertyView : View
     {
-        public static DependencyProperty? TextContentProperty { get; set; } 
+        public static DependencyProperty? TextContentProperty;
         [DepProp(EDepPropType.Default, "")] public string TextContent
         {
             get => (string)GetValue(TextContentProperty);

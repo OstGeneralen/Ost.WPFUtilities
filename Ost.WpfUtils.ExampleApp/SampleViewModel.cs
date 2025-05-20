@@ -32,7 +32,7 @@ namespace Ost.WpfUtils.ExampleApp
             {
                 if(_assignTextValueCommand == null )
                 {
-                    _assignTextValueCommand = new RelayCommand(() => AssignedTextValue = TextValue);
+                    _assignTextValueCommand = new RelayCommand(() => AssignedTextValue = TextValue );
                 }
                 return _assignTextValueCommand;
             }
