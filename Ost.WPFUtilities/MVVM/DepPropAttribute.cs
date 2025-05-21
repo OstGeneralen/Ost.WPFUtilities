@@ -140,7 +140,14 @@ namespace Ost.WpfUtils.MVVM
                 return new PropertyChangedCallback((o, a) => { method.Invoke(o, new[] { a.OldValue, a.NewValue }); });
             }
 
-            throw new Exception($"WithChangeCallback flag set for DepProp {ownerProperty.Name} but no matching {changeCallbackMethodName}({propType.Name}) OR {changeCallbackMethodName}({propType.Name}, {propType.Name}) callback found.");
+            string propertyName = propType.Name;
+            var nullableUnderlying = Nullable.GetUnderlyingType(propType);
+            if (nullableUnderlying != null)
+            {
+                propertyName = $"{nullableUnderlying.Name}?";
+            }
+
+            throw new Exception($"WithChangeCallback flag set for DepProp {ownerProperty.Name} but no matching {changeCallbackMethodName}({propertyName}) OR {changeCallbackMethodName}({propertyName}, {propertyName}) callback found.");
         }
     }
 
