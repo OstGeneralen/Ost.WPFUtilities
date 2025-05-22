@@ -1,249 +1,75 @@
-# Ost.WpfUtils
-A simple library of utilities for building applications using WPF and .NET 9.
+Utilities and helpers to reduce required boilerplate and repetetiveness when writing apps using [Windows Presentation Foundation](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/overview/).
 
-This does not aim to change any behaviours of the Wpf workflow, instead wrapping a bunch of multi-parameter calls behind convenience types and interfaces that deals with it for you.
+## MVVM Workflow Utilities
+### `Ost.WpfUtils.MVVM.ViewModel`
+Base type for View Models with [one-line setter utility](#one-line-property-setter) for owned properties
 
-__Without WpfUtils__
+### `Ost.WpfUtils.MVVM.View`
+Base type for Views (this is the base class of i.e your user controls)
+* Has the [one-line setter utility](#one-line-property-setter) for owned normal properties
+* Can use `DependencyProperty` [auto registration](#dependency-property-auto-registration)
+
+---
+
+## One Line Property Setter
+In types derived from either `View` or `ViewModel`
 ```csharp
-public class Example : UserControl, INotifyPropertyChanged
+// Without
+public class PropertyOwner : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    public static readonly DependencyProperty FooProperty;
-    public string Foo
+    public PropertyType PropertyName
     {
-        get => (string)GetValue(FooProperty);
-        set => SetValue(FooProperty, value);
-    }
-
-    public static readonly DependencyProperty BarProperty;
-    public int Bar
-    {
-        get => (int)GetValue(BarProperty);
-        set => SetValue(BarProperty, value);
-    }
-
-    public float NormalProperty
-    {
-        get => _normalProperty;
+        get => _propertyName;
         set
         {
-            _normalProperty = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NormalProperty)));
+            _propertyName = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PropertyName));
         }
     }
-    private float _normalProperty = 42.0f;
-
-    static Example()
-    {
-        // Property with no change callback
-        FooProperty = DependencyProperty.Register(
-            nameof(Foo), 
-            typeof(string), 
-            typeof(Example), 
-            new PropertyMetadata(""));
-
-        // Property with change callback
-        BarProperty = DependencyProperty.Register(
-            nameof(Bar),
-            typeof(int),
-            typeof(Example),
-            new PropertyMetadata(0, OnBarChanged));
-
-        
-    }
-    static void OnBarChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
-    {
-        ((Example)obj).Bar_Changed((int)args.NewValue);
-    }
-
-    void Bar_Changed(int newValue) { /*Handle change*/ }
+    private PropertyType _propertyName;
 }
-```
-__With WpfUtils__
-```csharp
-public class Example : View // Or ViewModel
+
+// With
+public class PropertyOwner : ViewModel // Or View
 {
-    public static readonly DependencyProperty FooProperty;
-    public string Foo
+    public PropertyType PropertyName
     {
-        get => (string)GetValue(FooProperty);
-        set => SetValue(FooProperty, value);
+        get => _propertyName;
+        set => PropertySet(ref _propertyName, value, nameof(PropertyName));
     }
-
-    public static readonly DependencyProperty BarProperty;
-    public int Bar
-    {
-        get => (int)GetValue(BarProperty);
-        set => SetValue(BarProperty, value);
-    }
-
-    public float NormalProperty
-    {
-        get => _normalProperty;
-        set => PropertySet(ref _normalProperty, value, nameof(NormalProperty));
-    }
-    private float _normalProperty = 42.0f;
-
-    static Example()
-    {
-        var registrator = new DependencyPropertyRegistrator<Example>();
-
-        // Property with no change callback
-        FooProperty = registrator.Register(nameof(Foo), "");
-
-        // Property with change callback
-        BarProperty = registrator.RegisterWithChangeCallback(nameof(Bar), 0);
-
-    }
-
-    // No need for the static invoke with casts, this method is automatically found and invoked
-    void Bar_Changed(int newValue) { /*Handle change*/ }
+    private PropertyType _propertyName;
 }
 ```
 
-
-## Included Utilities
-### RelayCommand
-Utility command type that allows you to specify in code on construction the behaviour of both Execute and CanExecute.
+## Dependency Property Auto Registration
 ```csharp
-ICommand ExampleCommand
+public class PropertyOwner : View
 {
-  get
-  {
-    if(_exampleCommand == null)
+    public static DependencyProperty? PropNameProperty;
+    [DepProp] public PropertyType PropName
     {
-      _exampleCommand = new RelayCommand(ExampleCmdAction, ExampleCmdCanExecute);
+        get => (PropertyType)GetValue(PropNameProperty);
+        set => SetValue(PropNameProperty);
     }
-    return _exampleCommand;
-  }
-}
-RelayCommand? _exampleCommand = null;
 
-void ExampleCmdAction() => /*Your cmd action logic*/;
-bool ExampleCmdCanExecute() => return /*Your evaluation to bool here*/;
-```
-
-### DependencyPropertyRegistrator
-Utility to help deal with registration of Dependency Properties in a slightly cleaner way.
-
-##### Default Version
-```csharp
-class ExampleType : UserControl
-{
-  public int Value
-  {
-    get => (int)GetValue(ValueProperty);
-    set => SetValue(ValueProperty, value);
-  }
-
-  public static readonly DependencyProperty ValueProperty; 
-
-  static ExampleType()
-  {
-    ValueProperty = DependencyProperty.Register(nameof(Value), typeof(int), typeof(ExampleType), new(0));
-  }
-```
-
-##### Ost.WpfUtilities Version
-
-```csharp
-class ExampleType : UserControl
-{
-  public int Value
-  {
-    get => (int)GetValue(ValueProperty);
-    set => SetValue(ValueProperty, value);
-  }
-
-  public static readonly DependencyProperty ValueProperty;
-
-  static ExampleType()
-  {
-    var registrator = new DependencyPropertyRegistrator<ExampleType>();
-    ValueProperty = registrator.Register(nameof(Value), 0);
-  }
+    static PropertyOwner() => StaticInitializeView<PropertyOwner>();
 }
 ```
-In addition to the cleaned up registration interface, it allows registering with an automatically found callback method for when the property is changed!
-```csharp
-class ExampleType : UserControl
-{
-  public int Value
-  {
-    get => (int)GetValue(ValueProperty);
-    set => SetValue(ValueProperty, value);
-  }
-  public static readonly DependencyProperty ValueProperty;
-
-  void Value_Changed(int newValue) { /*Logic to update based on change here*/ }
-
-  static ExampleType()
-  {
-    var registrator = new DependencyPropertyRegistrator<ExampleType>();
-    ValueProperty = registrator.RegisterWithChangeCallback(nameof(Value), 0);
-  }
-}
-```
-> [!note]
-> The `WithChangeCallback` registration will look for a method named `[PropertyName]_Changed` which takes a single argument of the property type (new value).
-> If this method is not found, an exception will be thrown. This method __can be__ `private`.
->
-> `RegisterWithChangeCallback<TProp>(string, TProp, PropertyChangedCallback)` can be used to provide your own callback instead of relying on the reflection based version.
-
-### View and ViewModel base types
-Base types for your ViewModels and Views (`UserControl`) which contains simple helpers to notify property changes and one line setting with notifying.
-
-##### Default Version
-```csharp
-// For default user controls
-class Example : UserControl, INotifyPropertyChanged
-{
-  public event PropertyChangedEventHandler? PropertyChanged;
-
-  int Value
-  {
-    get => _value;
-    set
-    {
-      _value = Value;
-      PropertyChanged?.Invoke(this, new(nameof(Value));
-    }
-  }
-  int _value = 0;
-}
-```
-
-##### Ost.WpfUtilities Notify Method
-```csharp
-class Example : View // Or ViewModel
-{
-  // Set and notify using provided function (this example has the same behaviour as the one line version)
-  // Provided to allow you to have custom logic on set
-  public int Value
-  {
-    get => _value;
-    set
-    {
-      _value = value;
-      NotifyPropChanged(nameof(Value));
-    }
-  }
-  private int _value = 0;
-```
-
-##### Ost.WpfUtilities OneLine Version
-```csharp
-class Example : View // Or ViewModel
-{
-  // One line set and notify
-  public int Value
-  {
-    get => _value;
-    set => PropertySet(ref _value, value, nameof(Value));
-  }
-  private int _value = 0;
-}
-```
-
-
+### Auto-Registration Requirements
+* The `DependencyProperty` instance name must follow the pattern `[PropertyName]Property`
+    * If you wish to use a custom name, this must be provided to the `DepProp` attribute as `DepProp(customDepPropName: [name]`
+* The type must have a static constructor that invokes the `StaticInitializeView<Type>()` method
+    * This method is responsible for actually performing the auto registration
+ 
+### The DepProp Attribute options
+* You can opt out of auto-registration by providing the attribute with the flag `EDepPropFlags.ManualRegister`
+* You can have an on-change callback for your property by providing the attribute with `EDepPropFlags.WithChangeCallback`
+    * Callback __must__ be implemented as either of the two options:
+        * `void [PropertyName]_Changed(PropertyType newValue)`
+        * `void [PropertyName]_Changed(PropertyType oldValue, PropertyType newValue)`
+        * If none of the above is found when you set the `WithChangeCallback` flag an exception will be thrown
+* You can provide a default value for the dependency property to the attribute
+* If your attribute is __nullable__, you should use the `NullableDepProp` attribute instead
+     
+          
